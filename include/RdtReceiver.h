@@ -8,8 +8,8 @@
 //只考虑单向传输，即接收方只接收数据
 struct  RdtReceiver
 {
-	virtual void receive(const Packet &packet) = 0;		//接收报文，将被NetworkService调用	
-	virtual ~RdtReceiver() = 0;
+    virtual void receive(const Packet &packet) = 0;		//接收报文，将被NetworkService调用	
+    virtual ~RdtReceiver() = 0;
 };
 
 #endif
