@@ -1,7 +1,6 @@
 #ifndef GBN_RDT_SENDER_H
 #define GBN_RDT_SENDER_H
 #include "RdtSender.h"
-#include <queue>
 #define WINDOW_SIZE 4
 // 序号空间为窗口大小 + 1
 #define MAX_SEQ_NUM 5
