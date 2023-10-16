@@ -14,16 +14,16 @@ bool TCPRdtSender::send(const Message &message)
     pkt->acknum = -1;
     memcpy(pkt->payload, message.data, sizeof(message.data));
     pkt->checksum = pUtils->calculateCheckSum(*pkt);
-    pUtils->printPacket("发送方发送报文", *pkt);
+    // pUtils->printPacket("发送方发送报文", *pkt);
+    fprintf(SLOG, "SEND(%d)\n", pkt->seqnum);
     pns->sendToNetworkLayer(RECEIVER, *pkt);
-    // 确认次数置0
-    ackCount = 0;
-    // 第一次发送，启动计时器
     if (baseSeqNum == nextSeqNum) {
+        // 第一次发送，启动计时器
         pns->startTimer(SENDER, Configuration::TIME_OUT, baseSeqNum);
     }
     // 更新nextSeqNum
     nextSeqNum = (nextSeqNum + 1) % MAX_SEQ_NUM;
+    printWindow();
     if ((nextSeqNum + MAX_SEQ_NUM - baseSeqNum) % MAX_SEQ_NUM >= WINDOW_SIZE) {
         waitingState = true;
     }
@@ -35,22 +35,24 @@ void TCPRdtSender::receive(const Packet &ackPkt)
     // 检查校验和
     int checkSum = pUtils->calculateCheckSum(ackPkt);
     if(checkSum == ackPkt.checksum){
+        fprintf(SLOG, "ACK(%d)=", ackPkt.acknum);
         if(ackPkt.acknum == baseSeqNum) {
-            // 确认上一次确认的分组，计数器加1
-            pktsWaitingAck[baseSeqNum].acknum++;
-            if(ackCount == 4){
-                // 重发
+            fprintf(SLOG, "%d\n", ++ackCount);
+            if(ackCount >= 3){
                 resend();
             }
+            fprintf(SLOG, "\n");
             return;
         }
-        pUtils->printPacket("发送方收到确认，窗口更改", ackPkt);
+        // pUtils->printPacket("发送方收到确认，窗口更改", ackPkt);
         // 停止旧计时器
         pns->stopTimer(SENDER, baseSeqNum);
         // 更新base
         baseSeqNum = ackPkt.acknum % MAX_SEQ_NUM;
-        // 确认次数置0
-        ackCount = 0;
+        // 确认次数置1
+        ackCount = 1;
+        fprintf(SLOG, "%d\n", ackCount);
+        printWindow();
         if(baseSeqNum != nextSeqNum){// 不空
             // 重启新计时器
             pns->startTimer(SENDER, Configuration::TIME_OUT, baseSeqNum);
@@ -58,18 +60,20 @@ void TCPRdtSender::receive(const Packet &ackPkt)
         // 发送窗口中有空闲，更新waitingState
         waitingState = false;
     }else{
-        pUtils->printPacket("发送方没有正确收到确认报文,数据校验错误", ackPkt);
+        // pUtils->printPacket("发送方没有正确收到确认报文,数据校验错误", ackPkt);
     }
 }
 
 void TCPRdtSender::timeoutHandler(int seqNum)
 {
+    fprintf(SLOG, "TIMEOUT(%d)\n", seqNum);
     // 重发窗口中所有未确认的分组，从base开始到nextSeqNum - 1
     resend();
 }
 
 void TCPRdtSender::resend()
 {
+    fprintf(SLOG, "RESEND(%d)\n\n", baseSeqNum);
     Packet *pkt = pktsWaitingAck+baseSeqNum;
     // 重置计时器
     pns->stopTimer(SENDER, baseSeqNum);
@@ -77,6 +81,23 @@ void TCPRdtSender::resend()
     // 重置确认次数
     ackCount = 0;
     pns->sendToNetworkLayer(RECEIVER, *pkt);
+}
+
+void TCPRdtSender::printWindow()
+{
+    fprintf(SLOG, "| ");
+    for(int i=0; i<WINDOW_SIZE; i++){
+        fprintf(SLOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
+    }
+    fprintf(SLOG, "|\n| ");
+    char c = '*';
+    for(int i=0; i<WINDOW_SIZE; i++){
+        if((baseSeqNum + i) % MAX_SEQ_NUM == nextSeqNum){
+            c = ' ';
+        }
+        fprintf(SLOG, "%c ", c);
+    }
+    fprintf(SLOG, "|\n\n");
 }
 
 TCPRdtSender::TCPRdtSender()

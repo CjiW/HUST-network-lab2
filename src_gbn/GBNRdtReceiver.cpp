@@ -20,7 +20,7 @@ void GBNRdtReceiver::receive(const Packet &packet)
 {
     int checkNum = pUtils->calculateCheckSum(packet);
     if (checkNum == packet.checksum && this->expectSequenceNumberRcvd == packet.seqnum) {
-        pUtils->printPacket("接收方正确收到发送方的报文", packet);
+        // pUtils->printPacket("接收方正确收到发送方的报文", packet);
         
         Message msg;
         memcpy(msg.data, packet.payload, sizeof(packet.payload));
@@ -28,17 +28,17 @@ void GBNRdtReceiver::receive(const Packet &packet)
 
         lastAckPkt.acknum = packet.seqnum;
         lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
-        pUtils->printPacket("接收方发送确认报文", lastAckPkt);
+        // pUtils->printPacket("接收方发送确认报文", lastAckPkt);
         pns->sendToNetworkLayer(SENDER, lastAckPkt);
 
         expectSequenceNumberRcvd = (expectSequenceNumberRcvd + 1) % MAX_SEQ_NUM;
     }else {
         if(checkNum != packet.checksum) {
-            pUtils->printPacket("接收方没有正确收到发送方的报文,数据校验错误", packet);
+            // pUtils->printPacket("接收方没有正确收到发送方的报文,数据校验错误", packet);
         }else{
-            pUtils->printPacket("接收方没有正确收到发送方的报文,报文序号不对", packet);
+            // pUtils->printPacket("接收方没有正确收到发送方的报文,报文序号不对", packet);
         }
-        pUtils->printPacket("接收方重新发送上次的确认报文", lastAckPkt);
+        // pUtils->printPacket("接收方重新发送上次的确认报文", lastAckPkt);
         pns->sendToNetworkLayer(SENDER, lastAckPkt);
     }
 

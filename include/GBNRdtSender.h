@@ -24,6 +24,8 @@ public:
     void timeoutHandler(int seqNum);					//Timeout handler，将被NetworkServiceSimulator调用
     // 重传分组
     void resend();
+    // 打印窗口信息
+    void printWindow();
 public:
     GBNRdtSender();
     virtual ~GBNRdtSender();

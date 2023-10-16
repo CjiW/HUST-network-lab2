@@ -15,7 +15,8 @@ private:
 public:
     TCPRdtReceiver();
     virtual ~TCPRdtReceiver();
-    bool isInWindow(int seqNum);
+    inline bool isInWindow(int seqNum);
+    void printWindow();
 
 public:
     

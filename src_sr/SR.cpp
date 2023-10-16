@@ -7,10 +7,13 @@
 #include "RdtReceiver.h"
 #include "SRRdtSender.h"
 #include "SRRdtReceiver.h"
-
+FILE *SLOG, *RLOG;
 
 int main(int argc, char* argv[])
 {
+    SLOG = fopen("/home/cjw/lab2/sender_log.txt", "w+");
+    // RLOG = fopen("/home/cjw/lab2/receiver_log.txt", "w+");
+    RLOG = SLOG;
     RdtSender *ps = new SRRdtSender();
     RdtReceiver * pr = new SRRdtReceiver();
     

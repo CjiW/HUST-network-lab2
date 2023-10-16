@@ -25,6 +25,7 @@ public:
     void timeoutHandler(int seqNum);					//Timeout handler，将被NetworkServiceSimulator调用
     // 重传分组
     void resend();
+    void printWindow();
 public:
     TCPRdtSender();
     virtual ~TCPRdtSender();

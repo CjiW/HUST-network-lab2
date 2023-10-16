@@ -7,14 +7,16 @@
 #include "RdtReceiver.h"
 #include "GBNRdtSender.h"
 #include "GBNRdtReceiver.h"
-
+FILE *SLOG, *RLOG;
 
 int main(int argc, char* argv[])
 {
+    SLOG = fopen("/home/cjw/lab2/sender_log.txt", "w+");
+    RLOG = fopen("/home/cjw/lab2/receiver_log.txt", "w+");
     RdtSender *ps = new GBNRdtSender();
     RdtReceiver * pr = new GBNRdtReceiver();
-    pns->setRunMode(0);  //VERBOS模式
-//	pns->setRunMode(1);  //安静模式
+    // pns->setRunMode(0);  //VERBOS模式
+	pns->setRunMode(1);  //安静模式
     pns->init();
     pns->setRtdSender(ps);
     pns->setRtdReceiver(pr);

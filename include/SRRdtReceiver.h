@@ -15,7 +15,9 @@ private:
 public:
     SRRdtReceiver();
     virtual ~SRRdtReceiver();
-    bool isInWindow(int seqNum);
+    inline bool isInWindow(int seqNum);
+    void printWindow();
+
 public:
     
     void receive(const Packet &packet);	//接收报文，将被NetworkService调用

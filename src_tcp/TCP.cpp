@@ -11,10 +11,13 @@
 #include "RdtReceiver.h"
 #include "TCPRdtSender.h"
 #include "TCPRdtReceiver.h"
-
+FILE *SLOG, *RLOG;
 
 int main(int argc, char* argv[])
 {
+    SLOG = fopen("/home/cjw/lab2/sender_log.txt", "w+");
+    RLOG = fopen("/home/cjw/lab2/receiver_log.txt", "w+");
+
     RdtSender *ps = new TCPRdtSender();
     RdtReceiver * pr = new TCPRdtReceiver();
     pns->setRunMode(0);  //VERBOS模式
