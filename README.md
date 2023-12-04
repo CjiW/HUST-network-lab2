@@ -10,11 +10,8 @@ VERSION="22.04.3 LTS (Jammy Jellyfish)"
 VERSION_CODENAME=jammy
 ID=ubuntu
 ID_LIKE=debian
-HOME_URL="https://www.ubuntu.com/"
-SUPPORT_URL="https://help.ubuntu.com/"
-BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
-PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
 UBUNTU_CODENAME=jammy
+Linux WIN-11 5.15.133.1-microsoft-standard-WSL2 #1 SMP Thu Oct 5 21:02:42 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
 -------------- gcc/g++ ----------------
 gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
 g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
