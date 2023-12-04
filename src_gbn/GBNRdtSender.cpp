@@ -21,7 +21,7 @@ bool GBNRdtSender::send(const Message &message)
     }
     // 更新nextSeqNum
     nextSeqNum = (nextSeqNum + 1) % MAX_SEQ_NUM;
-    fprintf(SLOG, "SEND(%d)\n", pkt->seqnum);
+    fprintf(LOG, "[S]: SEND(%d)\n", pkt->seqnum);
     printWindow();
     if (nextSeqNum == (baseSeqNum + WINDOW_SIZE) % MAX_SEQ_NUM) {
         // 发送窗口已满，等待确认
@@ -40,7 +40,7 @@ void GBNRdtSender::receive(const Packet &ackPkt)
             // pUtils->printPacket("发送方收到重复确认，窗口不变", ackPkt);
             return;
         }
-        fprintf(SLOG, "ACK(%d)\n", ackPkt.acknum);
+        fprintf(LOG, "[S]: RECVACK(%d)\n", ackPkt.acknum);
         // pUtils->printPacket("发送方收到确认，窗口更改", ackPkt);
         // 停止旧计时器
         pns->stopTimer(SENDER, baseSeqNum);
@@ -68,35 +68,35 @@ void GBNRdtSender::resend()
 {
     int seqnum = baseSeqNum;
     pns->stopTimer(SENDER, seqnum);
-    fprintf(SLOG, "TIMEOUT(%d)\n", seqnum);
+    fprintf(LOG, "[S]: TIMEOUT(%d)\n", seqnum);
     pns->startTimer(SENDER, Configuration::TIME_OUT, seqnum);
     while (seqnum != nextSeqNum){
         Packet *pkt = pktsWaitingAck+seqnum;
         pns->sendToNetworkLayer(RECEIVER, *pkt);
-        fprintf(SLOG, "RESEND(%d)\n", seqnum);
+        fprintf(LOG, "[S]: RESEND(%d)\n", seqnum);
         // pUtils->printPacket("发送方定时器时间到，重发报文", *pkt);
         seqnum = (seqnum + 1) % MAX_SEQ_NUM;
     }
-    fputc('\n', SLOG);
+    fputc('\n', LOG);
 }
 
 void GBNRdtSender::printWindow()
 {
     // |1 2 3 4|
     // |* *    | 1 2已发送，3 4未发送
-    fprintf(SLOG, "| ");
+    fprintf(LOG, "[S]: | ");
     for(int i=0; i<WINDOW_SIZE; i++){
-        fprintf(SLOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
+        fprintf(LOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
     }
-    fprintf(SLOG, "|\n| ");
+    fprintf(LOG, "|\n[S]: | ");
     char c = '*';
     for(int i=0; i<WINDOW_SIZE; i++){
         if ((baseSeqNum + i) % MAX_SEQ_NUM == nextSeqNum) {
             c = ' ';
         }
-        fprintf(SLOG, "%c ", c);
+        fprintf(LOG, "%c ", c);
     }
-    fprintf(SLOG, "|\n\n");
+    fprintf(LOG, "|\n\n");
 }
 
 GBNRdtSender::GBNRdtSender()

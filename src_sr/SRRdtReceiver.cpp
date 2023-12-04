@@ -26,17 +26,17 @@ inline bool SRRdtReceiver::isInWindow(int seqNum)
 
 void SRRdtReceiver::printWindow()
 {
-    fprintf(RLOG, "| ");
+    fprintf(LOG, "[R]: | ");
     for (int i = 0; i < WINDOW_SIZE; i++) {
-        fprintf(RLOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
+        fprintf(LOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
     }
-    fprintf(RLOG, "|\n| ");
+    fprintf(LOG, "|\n[R]: | ");
     char c;
     for (int i = 0; i < WINDOW_SIZE; i++) {
         c = pktsWaitingDeliver[(baseSeqNum + i) % MAX_SEQ_NUM].acknum == ACKED ? '+' : ' ';
-        fprintf(RLOG, "%c ", c);
+        fprintf(LOG, "%c ", c);
     }
-    fprintf(RLOG, "|\n\n");
+    fprintf(LOG, "|\n");
 }
 
 void SRRdtReceiver::receive(const Packet &packet)
@@ -45,7 +45,7 @@ void SRRdtReceiver::receive(const Packet &packet)
     if (checkSum == packet.checksum ) {
         // pUtils->printPacket("接收方正确收到发送方的报文", packet);
         Packet *pkt = pktsWaitingDeliver + packet.seqnum;
-        fprintf(RLOG, "RECV(%d)\n", packet.seqnum);
+        fprintf(LOG, "[R]: RECV(%d)\n", packet.seqnum);
         if (isInWindow(packet.seqnum)&&pkt->acknum!=ACKED){
             *pkt = packet;
             pkt->acknum=ACKED;
@@ -61,13 +61,12 @@ void SRRdtReceiver::receive(const Packet &packet)
                 }
             }
             printWindow();
-        }else{
-            fprintf(RLOG, "\n");
         }
         lastAckPkt.checksum = 0;
         lastAckPkt.acknum = packet.seqnum;
         lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
         // pUtils->printPacket("接收方发送确认报文", lastAckPkt);
         pns->sendToNetworkLayer(SENDER, lastAckPkt);
+        fprintf(LOG, "[R]: SENDACK(%d)\n\n", lastAckPkt.acknum);
     }
 }

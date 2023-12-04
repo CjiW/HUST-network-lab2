@@ -7,13 +7,15 @@
 #include "RdtReceiver.h"
 #include "SRRdtSender.h"
 #include "SRRdtReceiver.h"
-FILE *SLOG, *RLOG;
+FILE *LOG;
 
 int main(int argc, char* argv[])
 {
-    SLOG = fopen("/home/cjw/lab2/sender_log.txt", "w+");
-    // RLOG = fopen("/home/cjw/lab2/receiver_log.txt", "w+");
-    RLOG = SLOG;
+    if (argc != 3) {
+        printf("Usage: %s <inputfile> <outputfile>\n", argv[0]);
+        return 0;
+    }
+    LOG = fopen("sr_log.txt", "w+");
     RdtSender *ps = new SRRdtSender();
     RdtReceiver * pr = new SRRdtReceiver();
     
@@ -22,8 +24,8 @@ int main(int argc, char* argv[])
     pns->init();
     pns->setRtdSender(ps);
     pns->setRtdReceiver(pr);
-    pns->setInputFile("/home/cjw/lab2/input.txt");
-    pns->setOutputFile("/home/cjw/lab2/output.txt");
+    pns->setInputFile(argv[1]);
+    pns->setOutputFile(argv[2]);
 
     pns->start();
 

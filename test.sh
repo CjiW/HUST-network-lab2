@@ -2,7 +2,7 @@
 
 for i in {1..10}
 do
-    ./bin/$1
+    ./bin/$1 input.txt output.txt > test.log
     if diff input.txt output.txt > /dev/null ; then
         echo "[$i] Files are the same"
     else

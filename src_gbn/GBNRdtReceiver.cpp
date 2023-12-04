@@ -21,7 +21,7 @@ void GBNRdtReceiver::receive(const Packet &packet)
     int checkNum = pUtils->calculateCheckSum(packet);
     if (checkNum == packet.checksum && this->expectSequenceNumberRcvd == packet.seqnum) {
         // pUtils->printPacket("接收方正确收到发送方的报文", packet);
-        
+        fprintf(LOG, "[R]: RECV(%d)\n", packet.seqnum);
         Message msg;
         memcpy(msg.data, packet.payload, sizeof(packet.payload));
         pns->delivertoAppLayer(RECEIVER, msg);
@@ -30,6 +30,7 @@ void GBNRdtReceiver::receive(const Packet &packet)
         lastAckPkt.checksum = pUtils->calculateCheckSum(lastAckPkt);
         // pUtils->printPacket("接收方发送确认报文", lastAckPkt);
         pns->sendToNetworkLayer(SENDER, lastAckPkt);
+        fprintf(LOG, "[R]: SENDACK(%d)\n\n", lastAckPkt.acknum);
 
         expectSequenceNumberRcvd = (expectSequenceNumberRcvd + 1) % MAX_SEQ_NUM;
     }else {

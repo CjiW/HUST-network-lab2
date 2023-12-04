@@ -18,7 +18,7 @@ bool SRRdtSender::send(const Message &message)
     pns->sendToNetworkLayer(RECEIVER, *pkt);
     // 每次发送都启动计时器
     pns->startTimer(SENDER, Configuration::TIME_OUT, nextSeqNum);
-    fprintf(SLOG, "SEND(%d)\n", pkt->seqnum);
+    fprintf(LOG, "[S]: SEND(%d)\n", pkt->seqnum);
     // 更新nextSeqNum
     nextSeqNum = (nextSeqNum + 1) % MAX_SEQ_NUM;
     printWindow();
@@ -34,7 +34,7 @@ void SRRdtSender::receive(const Packet &ackPkt)
     int checkSum = pUtils->calculateCheckSum(ackPkt);
     // pUtils->printPacket("发送方正确收到确认", ackPkt);
     if (checkSum == ackPkt.checksum && isWaiting(ackPkt.acknum)) {
-        fprintf(SLOG, "ACK(%d)\n", ackPkt.acknum);
+        fprintf(LOG, "[S]: RECVACK(%d)\n", ackPkt.acknum);
         Packet *pkt = pktsWaitingAck + ackPkt.acknum;
         pkt->acknum = ACKED;
         pns->stopTimer(SENDER, ackPkt.acknum);
@@ -56,10 +56,10 @@ void SRRdtSender::timeoutHandler(int seqNum)
     Packet *pkt = pktsWaitingAck+seqNum;
     pns->stopTimer(SENDER, seqNum);
     // pUtils->printPacket("发送方超时重发报文", *pkt);
-    fprintf(SLOG, "TIMEOUT(%d)\nRESEND(%d)\n", seqNum, seqNum);
+    fprintf(LOG, "[S]: TIMEOUT(%d)\n[S]: RESEND(%d)\n", seqNum, seqNum);
     pns->sendToNetworkLayer(RECEIVER, *pkt);
     pns->startTimer(SENDER, Configuration::TIME_OUT, seqNum);
-    fputc('\n', SLOG);
+    fputc('\n', LOG);
 }
 
 inline bool SRRdtSender::isWaiting(int seqNum)
@@ -71,19 +71,19 @@ void SRRdtSender::printWindow()
 {
     // |1 2 3 4|
     // |* +    | 1 已发送 2 已确认，3 4未发送
-    fprintf(SLOG, "| ");
+    fprintf(LOG, "[S]: | ");
     for(int i=0; i<WINDOW_SIZE; i++){
-        fprintf(SLOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
+        fprintf(LOG, "%d ", (baseSeqNum + i) % MAX_SEQ_NUM);
     }
-    fprintf(SLOG, "|\n| ");
+    fprintf(LOG, "|\n[S]: | ");
     char c;
     int seqNum;
     for(int i=0; i<WINDOW_SIZE; i++){
         seqNum = (baseSeqNum + i) % MAX_SEQ_NUM;
         c = (isWaiting(seqNum))? (pktsWaitingAck[seqNum].acknum == ACKED)? '+' : '*' : ' ';
-        fprintf(SLOG, "%c ", c);
+        fprintf(LOG, "%c ", c);
     }
-    fprintf(SLOG, "|\n\n");
+    fprintf(LOG, "|\n\n");
 }
 
 SRRdtSender::SRRdtSender()
